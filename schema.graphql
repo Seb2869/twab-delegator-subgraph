@@ -1,0 +1,19 @@
+type Ticket @entity {
+  id: ID! # ticket address
+  delegations: [Delegation!]! @derivedFrom(field: "ticket")
+}
+
+type Delegation @entity {
+  id: ID! # delegation address
+  delegator: Account! # account who created the delegation
+  delegatee: Account! # account for whom the delegation is
+  balance: BigInt! # balance of tickets delegated
+  lockUntil: BigInt! # timestamp until which funds are locked
+  ticket: Ticket # ticket to which the delegation is associated
+}
+
+type Account @entity {
+  id: ID! # account address
+  delegations: [Delegation!] # delegations created by the account
+  ticket: Ticket
+}

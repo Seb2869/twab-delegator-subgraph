@@ -1,0 +1,7 @@
+{
+    "network": "avalanche",
+    "TWABDelegator": {
+        "address": "0xd23723fef8A16B77eaDc1fC822aE4170bA9d4009",
+        "startBlock": "12273135"
+    }
+}
