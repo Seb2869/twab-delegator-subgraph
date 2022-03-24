@@ -2,6 +2,7 @@ import {
   DelegateeUpdated,
   DelegationCreated,
   DelegationFunded,
+  TransferredDelegation,
   TWABDelegator,
 } from '../../generated/TWABDelegator/TWABDelegator';
 import { setBalance, setDelegatee, setDelegator, setLockUntil, setTicket } from '../helpers/delegation';
@@ -61,6 +62,20 @@ export function handleDelegateeUpdated(event: DelegateeUpdated): void {
 }
 
 export function handleDelegationFunded(event: DelegationFunded): void {
+  const delegator = event.params.delegator;
+  const slot = event.params.slot;
+
+  const twabDelegatorContract = TWABDelegator.bind(event.address);
+  const delegationAddress = twabDelegatorContract.getDelegation(delegator, slot).value0;
+  const delegation = loadOrCreateDelegation(delegationAddress.toHexString());
+
+  const delegationBalance = twabDelegatorContract.getDelegation(delegator, slot).value2;
+  setBalance(delegation, delegationBalance);
+
+  delegation.save();
+}
+
+export function handleTransferredDelegation(event: TransferredDelegation): void {
   const delegator = event.params.delegator;
   const slot = event.params.slot;
 

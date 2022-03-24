@@ -14,11 +14,11 @@ import {
   newDelegateeAddress,
   newDelegateeAccountId,
 } from './helpers/assertField';
-import { createDelegateeUpdatedEvent, createDelegationCreatedEvent, createDelegationFundedEvent } from './helpers/mockedEvent';
+import { createDelegateeUpdatedEvent, createDelegationCreatedEvent, createDelegationFundedEvent, createTransferredDelegationEvent } from './helpers/mockedEvent';
 import { mockGetDelegationFunction, mockTicketFunction } from './helpers/mockedFunction';
-import { handleDelegateeUpdated, handleDelegationCreated, handleDelegationFunded } from '../src/mappings/TWABDelegator';
+import { handleDelegateeUpdated, handleDelegationCreated, handleDelegationFunded, handleTransferredDelegation } from '../src/mappings/TWABDelegator';
 import { Account, Delegation, Ticket } from '../generated/schema';
-import { DelegationCreated, TWABDelegator } from '../generated/TWABDelegator/TWABDelegator';
+import { DelegationCreated, DelegationFunded, TWABDelegator } from '../generated/TWABDelegator/TWABDelegator';
 
 const amount = 1000;
 const lockUntil = 5184000; // 60 days in seconds
@@ -36,6 +36,28 @@ const createDelegation = (): DelegationCreated => {
   handleDelegationCreated(delegationCreatedEvent);
 
   return delegationCreatedEvent;
+}
+
+const fundDelegation = (): DelegationFunded => {
+  const delegationFundedEvent = createDelegationFundedEvent(
+    delegatorAddress.toHexString(),
+    0,
+    amount
+  );
+
+  mockGetDelegationFunction(
+    delegationFundedEvent,
+    delegatorAddress,
+    BigInt.fromI32(0),
+    newDelegateeAddress,
+    BigInt.fromI32(amount),
+    BigInt.fromI32(lockUntil),
+    true
+  );
+
+  handleDelegationFunded(delegationFundedEvent);
+
+  return delegationFundedEvent;
 }
 
 test('should handleDelegationCreated', () => {
@@ -118,35 +140,12 @@ test('should handleDelegateeUpdated', () => {
 test('should handleDelegationFunded', () => {
   createDelegation();
 
-  const delegationFundedEvent = createDelegationFundedEvent(
-    delegatorAddress.toHexString(),
-    0,
-    amount
-  );
-
-  mockGetDelegationFunction(
-    delegationFundedEvent,
-    delegatorAddress,
-    BigInt.fromI32(0),
-    newDelegateeAddress,
-    BigInt.fromI32(amount),
-    BigInt.fromI32(lockUntil),
-    true
-  );
-
-  handleDelegationFunded(delegationFundedEvent);
-
+  const delegationFundedEvent = fundDelegation();
   const twabDelegatorContract = TWABDelegator.bind(delegationFundedEvent.address);
   const ticketAddress = twabDelegatorContract.ticket();
 
-  const ticket = Ticket.load(ticketAddress.toHexString()) as Ticket;
-  assertTicketFields(ticket.id);
-
   const delegatorAccount = Account.load(delegatorAccountId) as Account;
   const delegateeAccount = Account.load(delegateeAccountId) as Account;
-
-  assertAccountFields(delegateeAccount.id, ticketAddress);
-
   const delegation = Delegation.load(delegationId) as Delegation;
 
   assertDelegationFields(
@@ -154,6 +153,48 @@ test('should handleDelegationFunded', () => {
     delegatorAccount.id,
     delegateeAccount.id,
     amount,
+    lockUntil,
+    ticketAddress,
+  );
+
+  clearStore();
+});
+
+test('should handleTransferredDelegation', () => {
+  createDelegation();
+  fundDelegation();
+
+  const transferredDelegationEvent = createTransferredDelegationEvent(
+    delegatorAddress.toHexString(),
+    0,
+    amount,
+    newDelegateeAddress.toHexString(),
+  );
+
+  mockGetDelegationFunction(
+    transferredDelegationEvent,
+    delegatorAddress,
+    BigInt.fromI32(0),
+    newDelegateeAddress,
+    BigInt.fromI32(0),
+    BigInt.fromI32(lockUntil),
+    true
+  );
+
+  handleTransferredDelegation(transferredDelegationEvent);
+
+  const twabDelegatorContract = TWABDelegator.bind(transferredDelegationEvent.address);
+  const ticketAddress = twabDelegatorContract.ticket();
+
+  const delegatorAccount = Account.load(delegatorAccountId) as Account;
+  const delegateeAccount = Account.load(delegateeAccountId) as Account;
+  const delegation = Delegation.load(delegationId) as Delegation;
+
+  assertDelegationFields(
+    delegation.id,
+    delegatorAccount.id,
+    delegateeAccount.id,
+    0,
     lockUntil,
     ticketAddress,
   );

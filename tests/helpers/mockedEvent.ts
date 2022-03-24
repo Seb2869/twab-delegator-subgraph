@@ -1,7 +1,7 @@
 import { Address, ethereum } from '@graphprotocol/graph-ts';
 import { newMockEvent } from 'matchstick-as/assembly/index';
 
-import { DelegateeUpdated, DelegationCreated, DelegationFunded } from '../../generated/TWABDelegator/TWABDelegator';
+import { DelegateeUpdated, DelegationCreated, DelegationFunded, TransferredDelegation } from '../../generated/TWABDelegator/TWABDelegator';
 
 export function createDelegationCreatedEvent(
   delegator: string,
@@ -82,18 +82,19 @@ export function createDelegateeUpdatedEvent(
     ethereum.Value.fromAddress(Address.fromString(delegator)),
   );
 
-  const userParam = new ethereum.EventParam(
-    'user',
-    ethereum.Value.fromAddress(Address.fromString(delegator)),
-  );
+  const slotParam = new ethereum.EventParam('slot', ethereum.Value.fromI32(slot));
 
   const delegateeParam = new ethereum.EventParam(
     'delegatee',
     ethereum.Value.fromAddress(Address.fromString(delegatee)),
   );
 
-  const slotParam = new ethereum.EventParam('slot', ethereum.Value.fromI32(slot));
   const lockUntilParam = new ethereum.EventParam('lockUntil', ethereum.Value.fromI32(lockUntil));
+
+  const userParam = new ethereum.EventParam(
+    'user',
+    ethereum.Value.fromAddress(Address.fromString(delegator)),
+  );
 
   delegateeUpdatedEvent.parameters.push(delegatorParam);
   delegateeUpdatedEvent.parameters.push(slotParam);
@@ -128,13 +129,13 @@ export function createDelegationFundedEvent(
     ethereum.Value.fromAddress(Address.fromString(delegator)),
   );
 
+  const slotParam = new ethereum.EventParam('slot', ethereum.Value.fromI32(slot));
+  const amountParam = new ethereum.EventParam('amount', ethereum.Value.fromI32(amount));
+
   const userParam = new ethereum.EventParam(
     'user',
     ethereum.Value.fromAddress(Address.fromString(delegator)),
   );
-
-  const slotParam = new ethereum.EventParam('slot', ethereum.Value.fromI32(slot));
-  const amountParam = new ethereum.EventParam('amount', ethereum.Value.fromI32(amount));
 
   delegationFundedEvent.parameters.push(delegatorParam);
   delegationFundedEvent.parameters.push(slotParam);
@@ -142,5 +143,46 @@ export function createDelegationFundedEvent(
   delegationFundedEvent.parameters.push(userParam);
 
   return delegationFundedEvent;
+}
+
+export function createTransferredDelegationEvent(
+  delegator: string,
+  slot: i32,
+  amount: i32,
+  to: string
+): TransferredDelegation {
+  const mockEvent = newMockEvent();
+
+  const transferredDelegationEvent = new TransferredDelegation(
+    mockEvent.address,
+    mockEvent.logIndex,
+    mockEvent.transactionLogIndex,
+    mockEvent.logType,
+    mockEvent.block,
+    mockEvent.transaction,
+    mockEvent.parameters,
+  );
+
+  transferredDelegationEvent.parameters = new Array();
+
+  const delegatorParam = new ethereum.EventParam(
+    'delegator',
+    ethereum.Value.fromAddress(Address.fromString(delegator)),
+  );
+
+  const slotParam = new ethereum.EventParam('slot', ethereum.Value.fromI32(slot));
+  const amountParam = new ethereum.EventParam('amount', ethereum.Value.fromI32(amount));
+
+  const toParam = new ethereum.EventParam(
+    'to',
+    ethereum.Value.fromAddress(Address.fromString(to)),
+  );
+
+  transferredDelegationEvent.parameters.push(delegatorParam);
+  transferredDelegationEvent.parameters.push(slotParam);
+  transferredDelegationEvent.parameters.push(amountParam);
+  transferredDelegationEvent.parameters.push(toParam);
+
+  return transferredDelegationEvent;
 }
 
