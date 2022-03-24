@@ -1,4 +1,4 @@
-import { Address } from '@graphprotocol/graph-ts';
+import { BigInt } from '@graphprotocol/graph-ts';
 import { clearStore, test } from 'matchstick-as/assembly/index';
 
 import {
@@ -14,15 +14,16 @@ import {
   newDelegateeAddress,
   newDelegateeAccountId,
 } from './helpers/assertField';
-import { createDelegateeUpdatedEvent, createDelegationCreatedEvent } from './helpers/mockedEvent';
+import { createDelegateeUpdatedEvent, createDelegationCreatedEvent, createDelegationFundedEvent } from './helpers/mockedEvent';
 import { mockGetDelegationFunction, mockTicketFunction } from './helpers/mockedFunction';
-import { handleDelegateeUpdated, handleDelegationCreated } from '../src/mappings/TWABDelegator';
+import { handleDelegateeUpdated, handleDelegationCreated, handleDelegationFunded } from '../src/mappings/TWABDelegator';
 import { Account, Delegation, Ticket } from '../generated/schema';
 import { DelegationCreated, TWABDelegator } from '../generated/TWABDelegator/TWABDelegator';
 
+const amount = 1000;
 const lockUntil = 5184000; // 60 days in seconds
 
-test('should handleDelegationCreated', () => {
+const createDelegation = (): DelegationCreated => {
   const delegationCreatedEvent = createDelegationCreatedEvent(
     delegatorAddress.toHexString(),
     delegateeAddress.toHexString(),
@@ -33,6 +34,12 @@ test('should handleDelegationCreated', () => {
 
   mockTicketFunction(delegationCreatedEvent);
   handleDelegationCreated(delegationCreatedEvent);
+
+  return delegationCreatedEvent;
+}
+
+test('should handleDelegationCreated', () => {
+  const delegationCreatedEvent = createDelegation();
 
   const twabDelegatorContract = TWABDelegator.bind(delegationCreatedEvent.address);
   const ticketAddress = twabDelegatorContract.ticket();
@@ -61,6 +68,8 @@ test('should handleDelegationCreated', () => {
 });
 
 test('should handleDelegateeUpdated', () => {
+  createDelegation();
+
   const delegateeUpdatedEvent = createDelegateeUpdatedEvent(
     delegatorAddress.toHexString(),
     newDelegateeAddress.toHexString(),
@@ -71,10 +80,10 @@ test('should handleDelegateeUpdated', () => {
   mockGetDelegationFunction(
     delegateeUpdatedEvent,
     delegatorAddress,
-    0,
+    BigInt.fromI32(0),
     newDelegateeAddress,
-    0,
-    lockUntil,
+    BigInt.fromI32(0),
+    BigInt.fromI32(lockUntil),
     true
   );
 
@@ -99,6 +108,52 @@ test('should handleDelegateeUpdated', () => {
     delegatorAccount.id,
     newDelegateeAccount.id,
     0,
+    lockUntil,
+    ticketAddress,
+  );
+
+  clearStore();
+});
+
+test('should handleDelegationFunded', () => {
+  createDelegation();
+
+  const delegationFundedEvent = createDelegationFundedEvent(
+    delegatorAddress.toHexString(),
+    0,
+    amount
+  );
+
+  mockGetDelegationFunction(
+    delegationFundedEvent,
+    delegatorAddress,
+    BigInt.fromI32(0),
+    newDelegateeAddress,
+    BigInt.fromI32(amount),
+    BigInt.fromI32(lockUntil),
+    true
+  );
+
+  handleDelegationFunded(delegationFundedEvent);
+
+  const twabDelegatorContract = TWABDelegator.bind(delegationFundedEvent.address);
+  const ticketAddress = twabDelegatorContract.ticket();
+
+  const ticket = Ticket.load(ticketAddress.toHexString()) as Ticket;
+  assertTicketFields(ticket.id);
+
+  const delegatorAccount = Account.load(delegatorAccountId) as Account;
+  const delegateeAccount = Account.load(delegateeAccountId) as Account;
+
+  assertAccountFields(delegateeAccount.id, ticketAddress);
+
+  const delegation = Delegation.load(delegationId) as Delegation;
+
+  assertDelegationFields(
+    delegation.id,
+    delegatorAccount.id,
+    delegateeAccount.id,
+    amount,
     lockUntil,
     ticketAddress,
   );

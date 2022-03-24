@@ -9,15 +9,12 @@ export function setTicket<Entity>(entity: Entity, ticket: Address): void {
   }
 }
 
-// export const setBalance = (
-//   delegation: Delegation,
-//   ticket: Ticket,
-//   walletAddress: Address,
-// ): void => {
-//   const balance = ticket.balanceOf(walletAddress);
-
-//   delegation.balance = balance;
-// };
+export const setBalance = (
+  delegation: Delegation,
+  balance: BigInt,
+): void => {
+  delegation.balance = balance;
+};
 
 export const setDelegator = (delegation: Delegation, delegatorId: string): void => {
   // If just created set delegator field

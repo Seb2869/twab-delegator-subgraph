@@ -1,7 +1,7 @@
 import { Address, ethereum } from '@graphprotocol/graph-ts';
 import { newMockEvent } from 'matchstick-as/assembly/index';
 
-import { DelegateeUpdated, DelegationCreated } from '../../generated/TWABDelegator/TWABDelegator';
+import { DelegateeUpdated, DelegationCreated, DelegationFunded } from '../../generated/TWABDelegator/TWABDelegator';
 
 export function createDelegationCreatedEvent(
   delegator: string,
@@ -102,5 +102,45 @@ export function createDelegateeUpdatedEvent(
   delegateeUpdatedEvent.parameters.push(userParam);
 
   return delegateeUpdatedEvent;
+}
+
+export function createDelegationFundedEvent(
+  delegator: string,
+  slot: i32,
+  amount: i32
+): DelegationFunded {
+  const mockEvent = newMockEvent();
+
+  const delegationFundedEvent = new DelegationFunded(
+    mockEvent.address,
+    mockEvent.logIndex,
+    mockEvent.transactionLogIndex,
+    mockEvent.logType,
+    mockEvent.block,
+    mockEvent.transaction,
+    mockEvent.parameters,
+  );
+
+  delegationFundedEvent.parameters = new Array();
+
+  const delegatorParam = new ethereum.EventParam(
+    'delegator',
+    ethereum.Value.fromAddress(Address.fromString(delegator)),
+  );
+
+  const userParam = new ethereum.EventParam(
+    'user',
+    ethereum.Value.fromAddress(Address.fromString(delegator)),
+  );
+
+  const slotParam = new ethereum.EventParam('slot', ethereum.Value.fromI32(slot));
+  const amountParam = new ethereum.EventParam('amount', ethereum.Value.fromI32(amount));
+
+  delegationFundedEvent.parameters.push(delegatorParam);
+  delegationFundedEvent.parameters.push(slotParam);
+  delegationFundedEvent.parameters.push(amountParam);
+  delegationFundedEvent.parameters.push(userParam);
+
+  return delegationFundedEvent;
 }
 
