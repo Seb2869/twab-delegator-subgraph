@@ -19,12 +19,14 @@ export function setTicket<Entity>(entity: Entity, ticket: Address): void {
 //   delegation.balance = balance;
 // };
 
-export const setDelegation = (
-  delegation: Delegation,
-  delegatorId: string,
-  delegateeId: string,
-): void => {
-  delegation.delegator = delegatorId;
+export const setDelegator = (delegation: Delegation, delegatorId: string): void => {
+  // If just created set delegator field
+  if (delegation.delegator == '') {
+    delegation.delegator = delegatorId;
+  }
+};
+
+export const setDelegatee = (delegation: Delegation, delegateeId: string): void => {
   delegation.delegatee = delegateeId;
 };
 

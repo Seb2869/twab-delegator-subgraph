@@ -7,6 +7,9 @@ export const delegatorAccountId = delegatorAddress.toHexString();
 export const delegateeAddress = Address.fromString('0x8a37cb10f5AB9374283237551E396b53194E64e3');
 export const delegateeAccountId = delegateeAddress.toHexString();
 
+export const newDelegateeAddress = Address.fromString('0x5B7BADC59D848828E34cD69877A07E8797248964');
+export const newDelegateeAccountId = newDelegateeAddress.toHexString();
+
 export const delegationAddress = Address.fromString('0x817d54177e42E3FBCB3EA64009111e0a086347a8');
 export const delegationId = delegationAddress.toHexString();
 

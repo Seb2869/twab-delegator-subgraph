@@ -1,7 +1,7 @@
 import { Address, ethereum } from '@graphprotocol/graph-ts';
 import { newMockEvent } from 'matchstick-as/assembly/index';
 
-import { DelegationCreated } from '../../generated/TWABDelegator/TWABDelegator';
+import { DelegateeUpdated, DelegationCreated } from '../../generated/TWABDelegator/TWABDelegator';
 
 export function createDelegationCreatedEvent(
   delegator: string,
@@ -57,69 +57,50 @@ export function createDelegationCreatedEvent(
   return delegationCreatedEvent;
 }
 
-// export function createNewUserTwabEvent(delegate: string, amount: i32, timestamp: i32): NewUserTwab {
-//   const mockEvent = newMockEvent();
+export function createDelegateeUpdatedEvent(
+  delegator: string,
+  delegatee: string,
+  slot: i32,
+  lockUntil: i32
+): DelegateeUpdated {
+  const mockEvent = newMockEvent();
 
-//   const newUserTwabEvent = new NewUserTwab(
-//     mockEvent.address,
-//     mockEvent.logIndex,
-//     mockEvent.transactionLogIndex,
-//     mockEvent.logType,
-//     mockEvent.block,
-//     mockEvent.transaction,
-//     mockEvent.parameters,
-//   );
+  const delegateeUpdatedEvent = new DelegateeUpdated(
+    mockEvent.address,
+    mockEvent.logIndex,
+    mockEvent.transactionLogIndex,
+    mockEvent.logType,
+    mockEvent.block,
+    mockEvent.transaction,
+    mockEvent.parameters,
+  );
 
-//   newUserTwabEvent.parameters = new Array();
+  delegateeUpdatedEvent.parameters = new Array();
 
-//   const delegateParam = new ethereum.EventParam(
-//     'delegate',
-//     ethereum.Value.fromAddress(Address.fromString(delegate)),
-//   );
+  const delegatorParam = new ethereum.EventParam(
+    'delegator',
+    ethereum.Value.fromAddress(Address.fromString(delegator)),
+  );
 
-//   const newTwabParam = new ethereum.EventParam(
-//     'newTwab',
-//     ethereum.Value.fromTuple(
-//       changetype<ethereum.Tuple>([
-//         ethereum.Value.fromI32(amount),
-//         ethereum.Value.fromI32(timestamp),
-//       ]),
-//     ),
-//   );
+  const userParam = new ethereum.EventParam(
+    'user',
+    ethereum.Value.fromAddress(Address.fromString(delegator)),
+  );
 
-//   newUserTwabEvent.parameters.push(delegateParam);
-//   newUserTwabEvent.parameters.push(newTwabParam);
+  const delegateeParam = new ethereum.EventParam(
+    'delegatee',
+    ethereum.Value.fromAddress(Address.fromString(delegatee)),
+  );
 
-//   return newUserTwabEvent;
-// }
+  const slotParam = new ethereum.EventParam('slot', ethereum.Value.fromI32(slot));
+  const lockUntilParam = new ethereum.EventParam('lockUntil', ethereum.Value.fromI32(lockUntil));
 
-// export function createTransferEvent(from: string, to: string, value: i32): Transfer {
-//   const mockEvent = newMockEvent();
+  delegateeUpdatedEvent.parameters.push(delegatorParam);
+  delegateeUpdatedEvent.parameters.push(slotParam);
+  delegateeUpdatedEvent.parameters.push(delegateeParam);
+  delegateeUpdatedEvent.parameters.push(lockUntilParam);
+  delegateeUpdatedEvent.parameters.push(userParam);
 
-//   const transferEvent = new Transfer(
-//     mockEvent.address,
-//     mockEvent.logIndex,
-//     mockEvent.transactionLogIndex,
-//     mockEvent.logType,
-//     mockEvent.block,
-//     mockEvent.transaction,
-//     mockEvent.parameters,
-//   );
+  return delegateeUpdatedEvent;
+}
 
-//   transferEvent.parameters = new Array();
-
-//   const fromParam = new ethereum.EventParam(
-//     'from',
-//     ethereum.Value.fromAddress(Address.fromString(from)),
-//   );
-
-//   const toParam = new ethereum.EventParam('to', ethereum.Value.fromAddress(Address.fromString(to)));
-
-//   const valueParam = new ethereum.EventParam('value', ethereum.Value.fromI32(value));
-
-//   transferEvent.parameters.push(fromParam);
-//   transferEvent.parameters.push(toParam);
-//   transferEvent.parameters.push(valueParam);
-
-//   return transferEvent;
-// }
