@@ -1,5 +1,6 @@
 type Ticket @entity {
   id: ID! # ticket address
+  accounts: [Account!]! @derivedFrom(field: "ticket")
   delegations: [Delegation!]! @derivedFrom(field: "ticket")
 }
 
@@ -14,6 +15,6 @@ type Delegation @entity {
 
 type Account @entity {
   id: ID! # account address
-  delegations: [Delegation!] # delegations created by the account
+  delegations: [Delegation!]! @derivedFrom(field: "delegator") # delegations created by the account
   ticket: Ticket
 }
