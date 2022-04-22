@@ -1,0 +1,7 @@
+{
+  "network": "matic",
+  "TWABDelegator": {
+    "address": "0x89Ee77Ce3F4C1b0346FF96E3004ff7C9f972dEF8",
+    "startBlock": "26079678"
+  }
+}

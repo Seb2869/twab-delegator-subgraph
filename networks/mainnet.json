@@ -1,0 +1,7 @@
+{
+  "network": "mainnet",
+  "TWABDelegator": {
+    "address": "0x5cFbEE38362B9A60be276763753f64245EA990F7",
+    "startBlock": "14411364"
+  }
+}

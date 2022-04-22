@@ -8,7 +8,7 @@
 
 ## PoolTogether - TWAB Delegator subgraph
 
-[![Coveralls](https://github.com/pooltogether/twab-subgraph/actions/workflows/main.yml/badge.svg)](https://github.com/pooltogether/twab-subgraph/actions/workflows/main.yml)
+[![Tests](https://github.com/pooltogether/twab-delegator-subgraph/actions/workflows/main.yml/badge.svg)](https://github.com/pooltogether/twab-delegator-subgraph/actions/workflows/main.yml)
 
 Subgraph to track events and data related to the TWAB Delegator contract.
 
@@ -70,3 +70,4 @@ Subgraphs are hosted at the following URLs:
 -   https://thegraph.com/hosted-service/subgraph/pooltogether/mainnet-twab-delegator
 -   https://thegraph.com/hosted-service/subgraph/pooltogether/polygon-twab-delegator
 -   https://thegraph.com/hosted-service/subgraph/pooltogether/avalanche-twab-delegator
+-   https://thegraph.com/hosted-service/subgraph/pooltogether/rinkeby-twab-delegator

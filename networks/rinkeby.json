@@ -1,0 +1,7 @@
+{
+  "network": "rinkeby",
+  "TWABDelegator": {
+    "address": "0x448200d83e48f561B42e90274566d3FA3914B8A4",
+    "startBlock": "10345342"
+  }
+}

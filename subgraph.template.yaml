@@ -1,0 +1,33 @@
+specVersion: 0.0.2
+schema:
+  file: ./schema.graphql
+dataSources:
+  {{#TWABDelegator}}
+  - name: TWABDelegator
+    kind: ethereum/contract
+    network: {{network}}
+    source:
+      address: "{{TWABDelegator.address}}"
+      abi: TWABDelegator
+      startBlock: {{TWABDelegator.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/mappings/TWABDelegator.ts
+      entities:
+        - TWABDelegator
+      abis:
+        - name: TWABDelegator
+          file: "./node_modules/@pooltogether/v4-twab-delegator/abis/TWABDelegator.json"
+      eventHandlers:
+        - event: DelegationCreated(indexed address,indexed uint256,uint96,indexed address,address,address)
+          handler: handleDelegationCreated
+        - event: DelegateeUpdated(indexed address,indexed uint256,indexed address,uint96,address)
+          handler: handleDelegateeUpdated
+        - event: DelegationFunded(indexed address,indexed uint256,uint256,indexed address)
+          handler: handleDelegationFunded
+        - event: TransferredDelegation(indexed address,indexed uint256,uint256,indexed address)
+          handler: handleTransferredDelegation
+    {{/TWABDelegator}}
+

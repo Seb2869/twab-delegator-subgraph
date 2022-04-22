@@ -31,13 +31,13 @@
         "test": "yarn clean && yarn prepare:polygon && yarn gen:polygon && cp subgraph.polygon.yaml subgraph.yaml && graph test"
     },
     "dependencies": {
-        "@graphprotocol/graph-cli": "0.23.1",
-        "@graphprotocol/graph-ts": "0.23.1",
+        "@graphprotocol/graph-cli": "0.29.0",
+        "@graphprotocol/graph-ts": "0.26.0",
         "@pooltogether/v4-twab-delegator": "1.0.0",
-        "matchstick-as": "0.2.0",
-        "mustache": "4.0.1"
+        "matchstick-as": "0.4.2",
+        "mustache": "4.2.0"
     },
     "devDependencies": {
-        "prettier": "2.4.1"
+        "prettier": "2.6.0"
     }
 }
